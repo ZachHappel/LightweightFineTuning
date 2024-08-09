@@ -195,7 +195,7 @@ training_args = TrainingArguments(
     per_device_eval_batch_size=16,
     num_train_epochs=1,
     weight_decay=0.01,
-    eval_strategy="epoch",
+    evaluation_strategy="epoch",
     save_strategy="epoch",
     load_best_model_at_end=True,
 )
@@ -266,7 +266,7 @@ trainer = Trainer(
         per_device_eval_batch_size=16,
         num_train_epochs=2,
         weight_decay=0.01,
-        eval_strategy="epoch",
+        evaluation_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
         logging_dir='./logs',
@@ -329,7 +329,7 @@ training_args = TrainingArguments(
     per_device_eval_batch_size=16, 
     num_train_epochs=1, 
     weight_decay=0.01, 
-    eval_strategy="epoch", 
+    evaluation_strategy="epoch", 
     save_strategy="epoch", 
     load_best_model_at_end=True, 
 )
