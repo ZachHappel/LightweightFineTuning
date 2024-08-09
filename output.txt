@@ -1,0 +1,209 @@
+
+[lightweight_finetuning.py output]  ------------------------------
+
+
+
+##################################################################
+##################################################################
+##########################   WELCOME!   ##########################
+##################################################################
+##################################################################
+##########################  Developer:  ##########################
+##########################   Zacharie   ##########################
+##########################   Happel     ##########################
+##################################################################
+##################################################################
+
+
+Using device: cuda
+Using GPU: NVIDIA GeForce RTX 3090
+Loading Dataset [LabHC/bias_in_bios]...
+
+
+##################################################################
+####################### Dataset Operations #######################
+##################################################################
+
+Splitting Data...
+
+
+Dataset:  {'training': Dataset({
+    features: ['hard_text', 'profession', 'gender'],
+    num_rows: 25747
+}), 'pre_training': Dataset({
+    features: ['hard_text', 'profession', 'gender'],
+    num_rows: 4953
+}), 'post_training': Dataset({
+    features: ['hard_text', 'profession', 'gender'],
+    num_rows: 4953
+})}
+
+Analyze Data - Subset Information:
+
+   Subset "training":
+   [Label: 1]  Subset respresentation: 45.92%
+   [Label: 0]  Subset respresentation: 54.08%
+
+   Subset "pre_training":
+   [Label: 0]  Subset respresentation: 52.94%
+   [Label: 1]  Subset respresentation: 47.06%
+
+   Subset "post_training":
+   [Label: 0]  Subset respresentation: 54.29%
+   [Label: 1]  Subset respresentation: 45.71%
+
+
+##################################################################
+#######################     Tokenizing     #######################
+##################################################################
+
+Tokenizing dataset...
+ - Using preprocessor to process split: training
+Map: 100%|##########| 25747/25747 [00:03<00:00, 7483.21 examples/s]
+Map: 100%|##########| 25747/25747 [00:07<00:00, 3382.90 examples/s]
+ - Using preprocessor to process split: pre_training
+Map: 100%|##########| 4953/4953 [00:00<00:00, 7486.38 examples/s]
+Map: 100%|##########| 4953/4953 [00:01<00:00, 3272.79 examples/s]
+ - Using preprocessor to process split: post_training
+Map: 100%|##########| 4953/4953 [00:00<00:00, 7019.14 examples/s]
+Map: 100%|##########| 4953/4953 [00:01<00:00, 3311.12 examples/s]
+Some weights of GPT2ForSequenceClassification were not initialized from the model checkpoint at gpt2 and are newly initialized: ['score.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+
+
+##################################################################
+######################   Preparing Model   #######################
+##################################################################
+
+Loading model [gpt2]...
+
+Moving model to [cuda]...
+Configuring padding token
+and freezing base model parameters...
+
+~~~~~~~~~~~ Model info ~~~~~~~~~~~
+GPT2ForSequenceClassification(
+  (transformer): GPT2Model(
+    (wte): Embedding(50257, 768)
+    (wpe): Embedding(1024, 768)
+    (drop): Dropout(p=0.1, inplace=False)
+    (h): ModuleList(
+      (0-11): 12 x GPT2Block(
+        (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        (attn): GPT2Attention(
+          (c_attn): Conv1D()
+          (c_proj): Conv1D()
+          (attn_dropout): Dropout(p=0.1, inplace=False)
+          (resid_dropout): Dropout(p=0.1, inplace=False)
+        )
+        (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        (mlp): GPT2MLP(
+          (c_fc): Conv1D()
+          (c_proj): Conv1D()
+          (act): NewGELUActivation()
+          (dropout): Dropout(p=0.1, inplace=False)
+        )
+      )
+    )
+    (ln_f): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+  )
+  (score): Linear(in_features=768, out_features=2, bias=False)
+)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##################################################################
+##################   Pre-Training Evaluation   ###################
+##################################################################
+Preparing data collator
+Configuring trainer...
+Training arguments:
+Performing pre-training evaluation...
+100%|##########| 310/310 [00:21<00:00, 14.20it/s]
+C:\Users\zkhap\Documents\CognizantGenAI\PEFTProject\lib\site-packages\peft\tuners\lora\layer.py:1091: UserWarning: fan_in_fan_out is set to False but the target module is `Conv1D`. Setting fan_in_fan_out to True.
+  warnings.warn(
+
+
+Evaluation results prior to training:
+ {'eval_loss': 2.073310136795044, 'eval_model_preparation_time': 0.002, 'eval_accuracy': 0.47062386432465175, 'eval_runtime': 22.5555, 'eval_samples_per_second': 219.591, 'eval_steps_per_second': 13.744}
+
+
+
+##################################################################
+##########   Parameter Efficient Fine-Tuning (PEFT)   ############
+### Using Low Rank Adapatation of Large Language Models (LoRA) ###
+##################################################################
+
+Retrieving model...
+PEFT model configuration:
+ LoraConfig(peft_type=<PeftType.LORA: 'LORA'>, auto_mapping=None, base_model_name_or_path=None, revision=None, task_type=<TaskType.SEQ_CLS: 'SEQ_CLS'>, inference_mode=False, r=8, target_modules={'c_attn', 'c_proj'}, lora_alpha=32, lora_dropout=0.1, fan_in_fan_out=False, bias='none', use_rslora=False, modules_to_save=None, init_lora_weights=True, layers_to_transform=None, layers_pattern=None, rank_pattern={}, alpha_pattern={}, megatron_config=None, megatron_core='megatron.core', loftq_config={}, use_dora=False, layer_replication=None, runtime_config=LoraRuntimeConfig(ephemeral_gpu_offload=False))
+
+Trainable parameters:
+trainable params: 812,544 || all params: 125,253,888 || trainable%: 0.6487
+
+Configuring trainer...
+
+Training arguments:
+Output Directory: ./lora_model_output-bias_in_bios
+Learning Rate: 2e-05
+Per Device Train Batch Size: 16
+Per Device Eval Batch Size: 16
+Number of Train Epochs: 2
+Weight Decay: 0.01
+Evaluation Strategy: None
+Save Strategy: epoch
+Load Best Model at End: True
+Logging Directory: ./logs
+FP16: False
+DataLoader Num Workers: 0
+
+
+Performing LoRA training...
+
+
+  0%|          | 0/3220 [00:00<?, ?it/s]C:\Users\zkhap\Documents\CognizantGenAI\PEFTProject\lib\site-packages\transformers\tokenization_utils_base.py:2906: UserWarning: `max_length` is ignored when `padding`=`True` and there is no truncation strategy. To pad to max length, use `padding='max_length'`.
+  warnings.warn(
+ 50%|####9     | 1609/3220 [06:43<07:04,  3.79it/s]{'loss': 0.5659, 'grad_norm': 11.470852851867676, 'learning_rate': 1.68944099378882e-05, 'epoch': 0.31}
+{'loss': 0.0345, 'grad_norm': 3.1193113327026367, 'learning_rate': 1.3788819875776398e-05, 'epoch': 0.62}
+{'loss': 0.0268, 'grad_norm': 0.0022211428731679916, 'learning_rate': 1.0683229813664597e-05, 'epoch': 0.93}
+ 50%|#####     | 1610/3220 [07:08<07:04,  3.79it/C:\Users\zkhap\Documents\CognizantGenAI\PEFTProject\lib\site-packages\transformers\tokenization_utils_base.py:2906: UserWarning: `max_length` is ignored when `padding`=`True` and there is no truncation strategy. To pad to max length, use `padding='max_length'`.
+  warnings.warn(
+100%|#########9| 3219/3220 [13:51<00:00,  4.15it/s]C:\Users\zkhap\Documents\CognizantGenAI\PEFTProject\lib\site-packages\transformers\tokenization_utils_base.py:2906: UserWarning: `max_length` is ignored when `padding`=`True` and there is no truncation strategy. To pad to max length, use `padding='max_length'`.
+  warnings.warn(
+{'eval_loss': 0.017935821786522865, 'eval_accuracy': 0.9967696345649102, 'eval_runtime': 24.6625, 'eval_samples_per_second': 200.832, 'eval_steps_per_second': 12.57, 'epoch': 1.0}
+{'loss': 0.0145, 'grad_norm': 0.01221405528485775, 'learning_rate': 7.577639751552796e-06, 'epoch': 1.24}
+{'loss': 0.0139, 'grad_norm': 0.02234739251434803, 'learning_rate': 4.472049689440994e-06, 'epoch': 1.55}
+{'loss': 0.0214, 'grad_norm': 0.009879300370812416, 'learning_rate': 1.3664596273291927e-06, 'epoch': 1.86}
+100%|##########| 3220/3220 [14:27<00:00,  3.71it/s]
+Some weights of GPT2ForSequenceClassification were not initialized from the model checkpoint at gpt2 and are newly initialized: ['score.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+{'eval_loss': 0.017570607364177704, 'eval_accuracy': 0.9969715324046032, 'eval_runtime': 35.4828, 'eval_samples_per_second': 139.589, 'eval_steps_per_second': 8.737, 'epoch': 2.0}
+{'train_runtime': 867.4163, 'train_samples_per_second': 59.365, 'train_steps_per_second': 3.712, 'train_loss': 0.10640133078794302, 'epoch': 2.0}
+
+Saving LoRA, as [gpt2-lora-bias_in_bios]
+##################################################################
+#########################   Inference   ##########################
+##################################################################
+Performing [gpt2-lora-bias_in_bios] inference evaluation...
+100%|##########| 310/310 [00:42<00:00,  7.24it/s]
+
+
+ Evaluation of the adapted model after performing lightweight tuning using PEFT/LoRA:
+ {'eval_loss': 0.013229724019765854, 'eval_model_preparation_time': 0.004, 'eval_accuracy': 0.9959620432061377, 'eval_runtime': 42.9981, 'eval_samples_per_second': 115.191, 'eval_steps_per_second': 7.21}
+
+
+
+
+
+
+
+
+[test_your_own.py output]  ------------------------------
+
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Prediction for input 'She worked in an elementary class room. Elizabeth Stiner was her name.': FEMALE
+Prediction for input 'He worked in an elementary class room. Matthew Stiner was his name.': MALE
+Prediction for input 'Mr. Xi graduated from Harvard University, summa cum laude.': MALE
+Prediction for input 'A preschool teacher, a poet, and even a librarian, Mr. Adams loved all things literature and school!': MALE
+Prediction for input 'The developer of this repository finds this work to be fascinating and he looks forward to doing more of it.': MALE
+Prediction for input 'Deckhands were in short supply and a new one was desperately needed before they would depart from port. When Sabrina submitted her application, it was immediately accepted.': FEMALE
